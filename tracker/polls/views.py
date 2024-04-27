@@ -6,8 +6,9 @@ from django.http import HttpResponseRedirect
 from django.http import Http404
 from django.urls import reverse
 
-from .models import Choice, Question
+from .models import Choice, Question, Profile
 from django.views import generic
+from rest_framework import generics
 
 
 class indexView(generic.ListView):
@@ -25,6 +26,13 @@ class detailView(generic.DetailView):
 class resultsView(generic.DetailView):
     model = Question
     template_name = 'polls/results.html'
+
+class ProfileDetail(generics.RetrieveUpdateAPIView):
+    queryset = Profile.objects.all()
+
+    def get_object(self):
+        obj = Profile.objects.get(user=self.request.user)
+        return obj
     
 
 def vote(request, question_id):

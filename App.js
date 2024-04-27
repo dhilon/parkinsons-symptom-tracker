@@ -22,6 +22,7 @@ const App = () => {
           options={{title: 'Welcome Home'}}
         />
         <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="Survey1" component={survey1} options={{title: 'Question 1'}} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -33,15 +34,13 @@ const WelcomeScreen = ({navigation}) => {
 
   return(
   <View style={styles.container}>
-    <Text>
-      Terms and Conditions lol 
+    <Text style={styles.titleText}>
+      Welcome to Symptom Tracker!
     </Text>
     <Button onPress={() => {setTerms(false);}} disabled={!terms} title={'Accept'}/>
-    <Button onPress={() =>
-        navigation.navigate('Home', {name: text})
-      } disabled={terms} //next page
+    <Button onPress={() =>navigation.navigate('Home', {name: text})} disabled={terms && text.equals('')} //next page
         title={terms ? 'Accept to Continue' : 'Continue'}/>
-    <Text></Text>
+    <Text>We recommend you complete this profile with the help of a doctor, if possible.</Text>
     <Text style={{padding: 10, fontSize: 42}}>{text}</Text>
     <Image
         source={{
@@ -51,7 +50,7 @@ const WelcomeScreen = ({navigation}) => {
       />
       <TextInput
     style={{height: 40}}
-    placeholder="Enter your name here!"
+    placeholder="Enter your name here to continue!"
     onChangeText={newText => setText(newText)}
     defaultValue={text}
     />
@@ -64,12 +63,29 @@ const HomeScreen = ({navigation, route}) => {
     <View>
       <Text>Here is {route.params.name}'s profile. </Text>
       <Button
-        title= "Go"
+        title= "Go to profile"
         onPress={() =>
           navigation.navigate('Profile', {name: route.params.name})
         }
       />
-      <Text>{WelcomeScreen.text}</Text>
+      <Button title = "Start Survey" onPress={() =>navigation.navigate('Survey1', {name: route.params.name})} />
+      <Text></Text>
+    </View>
+    
+  );
+};
+
+const survey1 = ({navigation, route}) => {
+  return (
+    <View>
+      <Text>Question from database here </Text>
+      <Button
+        title= "Next Page"
+        onPress={() =>
+          navigation.navigate('Profile', {name: route.params.name})
+        }
+      />
+      <Text></Text>
     </View>
     
   );
@@ -87,6 +103,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  titleText: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color:'turquoise',
+    textAlign:"center"
+  }
 });
 
 export default App;
