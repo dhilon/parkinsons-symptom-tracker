@@ -4,6 +4,9 @@ import React, {useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+//import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+//import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import useSWR from 'swr';
 
 const Stack = createNativeStackNavigator();
 
@@ -38,7 +41,7 @@ const WelcomeScreen = ({navigation}) => {
       Welcome to Symptom Tracker!
     </Text>
     <Button onPress={() => {setTerms(false);}} disabled={!terms} title={'Accept'}/>
-    <Button onPress={() =>navigation.navigate('Home', {name: text})} disabled={terms && text.equals('')} //next page
+    <Button onPress={() =>navigation.navigate('Home', {name: text})} disabled={terms && text==''} //next page
         title={terms ? 'Accept to Continue' : 'Continue'}/>
     <Text>We recommend you complete this profile with the help of a doctor, if possible.</Text>
     <Text style={{padding: 10, fontSize: 42}}>{text}</Text>
@@ -76,6 +79,7 @@ const HomeScreen = ({navigation, route}) => {
 };
 
 const survey1 = ({navigation, route}) => {
+  date = new Date()
   return (
     <View>
       <Text>Question from database here </Text>
