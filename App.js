@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, Button, TextInput, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image, Button, TextInput, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import React, {useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -7,6 +7,7 @@ import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 //import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 //import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import useSWR from 'swr';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -80,11 +81,24 @@ const HomeScreen = ({navigation, route}) => {
 
 const survey1 = ({navigation, route}) => {
   date = new Date()
+  const { data: poll, error, isLoading } = useSWR('/polls/1/results/');
+
+
+  if (isLoading) {
+    return (<ActivityIndicator size="large" />);
+  }
+
+  if (error) {
+    return (Alert.alert('Alert Title', 'My Alert Msg'))
+  }
+
+
   return (
     <View>
-      <Text>Question from database here </Text>
+      <Text>Question from database here {poll} </Text>
+      
       <Button
-        title= "Next Page"
+        title= {"Next Question"}
         onPress={() =>
           navigation.navigate('Profile', {name: route.params.name})
         }
