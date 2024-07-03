@@ -145,6 +145,13 @@ class VoteDetail(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return Vote.objects.get(question=self.kwargs['pk'], choice=self.kwargs['pk2'], pk=self.kwargs['pk3'], profile=Profile.objects.get(user=self.request.user))
 
+class VoteList(generics.ListCreateAPIView):
+
+    serializer_class = VoteSerializer
+    
+    def get_queryset(self):
+        return Vote.objects.all().filter(question=self.kwargs['pk'], choice=self.kwargs['pk2'], profile=Profile.objects.get(user=self.request.user));
+
 class ProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
