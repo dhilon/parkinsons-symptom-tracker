@@ -30,5 +30,7 @@ urlpatterns = [
     path('polls/', include('polls.urls')),
     path('api-auth/', include('rest_framework.urls')),
     path('api-token-auth/', viewstoken.obtain_auth_token),
+    path('dj-rest-auth/', include('dj_rest_auth.urls')),
+    path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
     path('accounts/profile/', views.entry) #redirect to accounts/profile/<int:pk>
 ]

@@ -88,17 +88,6 @@ class indexView(generic.ListView):
         """Return the last five published questions."""
         return Question.objects.all()
 
-class detailView(generic.DetailView):
-    model = Question
-    template_name = 'polls/detail.html'
-    
-    #def get_object(self):
-    #    return Question.getFromDate(getDate(self.kwargs));
-
-class resultsView(generic.DetailView):
-    model = Question
-    template_name = 'polls/results.html'
-
 class ProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Profile.objects.all()
 
@@ -114,14 +103,22 @@ class QuestionDetail(generics.RetrieveAPIView):
     serializer_class = QuestionSerializer
     
     def get_object(self):
-        objs = Question.objects.order_by('?')
-        if len(objs) == 0:
-            return Question(title = "This is a bug.")
-        return objs[0]
+        return Question.objects.get(pk=self.kwargs['pk'])
 
 class SurveyDetail(generics.RetrieveAPIView):
     queryset = Survey.objects.all()
     serializer_class = SurveySerializer
+    
+    def get_object(self):
+        return Survey.objects.get(pk=self.kwargs['pk'])
+    
+
+class SurveyDetailByName(generics.RetrieveAPIView):
+    queryset = Survey.objects.all()
+    serializer_class = SurveySerializer
+    
+    def get_object(self):
+        return Survey.objects.get(name=self.kwargs['name'])
 
 class SurveyList(generics.ListCreateAPIView):
     
@@ -131,26 +128,81 @@ class SurveyList(generics.ListCreateAPIView):
         return Survey.objects.all();
     
 
-class ChoiceDetail(generics.RetrieveAPIView):
+class ChoiceDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Choice.objects.all()
     serializer_class = ChoiceSerializer
     
     def get_object(self):
         return Choice.objects.get(question=self.kwargs['pk'], pk=self.kwargs['pk2'])
 
+class ChoiceList(generics.ListCreateAPIView):
+    
+    serializer_class = ChoiceSerializer
+    
+    def get_queryset(self):
+        return Choice.objects.all().filter(question=self.kwargs['pk']);
+    
+    '''def perform_create(self, serializer):
+        choice_text = 'other: ' + self.request.data['choice_text']
+        question = Question.objects.get(pk=self.kwargs['pk'])
+        
+        serializer.save(
+            choice_text=choice_text,
+            question=question,
+            )'''
+
 class VoteDetail(generics.RetrieveUpdateAPIView):
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
-    
+        
     def get_object(self):
         return Vote.objects.get(question=self.kwargs['pk'], choice=self.kwargs['pk2'], pk=self.kwargs['pk3'], profile=Profile.objects.get(user=self.request.user))
 
-class VoteList(generics.ListCreateAPIView):
+class ChoiceVoteList(generics.ListCreateAPIView):
 
     serializer_class = VoteSerializer
     
     def get_queryset(self):
         return Vote.objects.all().filter(question=self.kwargs['pk'], choice=self.kwargs['pk2'], profile=Profile.objects.get(user=self.request.user));
+    
+    def perform_create(self, serializer):
+        profile = Profile.objects.get(user=self.request.user)
+        choice = Choice.objects.get(pk=self.kwargs['pk2'])
+        question = Question.objects.get(pk=self.kwargs['pk'])
+        survey = question.survey
+        
+        serializer.save(
+            profile=profile,
+            choice=choice,
+            question=question,
+            survey=survey
+            )
+
+class QuestionVoteList(generics.ListCreateAPIView):
+
+    serializer_class = VoteSerializer
+    
+    def get_queryset(self):
+        return Vote.objects.all().filter(question=self.kwargs['pk'], profile=Profile.objects.get(user=self.request.user));
+    
+    def perform_create(self, serializer):
+        profile = Profile.objects.get(user=self.request.user)
+        question = Question.objects.get(pk=self.kwargs['pk'])
+        t = self.request.data['type']
+        if t == 'date':
+            choice = Choice(date=datetime.strptime(self.request.data['date'], '%m/%d/%Y'), choice_text='date', question=question)
+        elif t == 'text':
+            choice = Choice(other_text=self.request.data['other_text'], choice_text='other', question=question)
+        choice.save()
+        
+        survey = question.survey
+        
+        serializer.save(
+            profile=profile,
+            choice=choice,
+            question=question,
+            survey=survey
+            )
 
 class ProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Profile.objects.all()
@@ -166,17 +218,4 @@ class ProfileDetail(generics.RetrieveUpdateDestroyAPIView):
 def entry(request):
     return HttpResponseRedirect(reverse('', args=()))
                                 
-'''def vote(request, question_id):
-    p = get_object_or_404(Question, pk=question_id)
-    try:
-        selected_choice = p.choice_set.get(pk=request.POST['choice'])
-    except (KeyError, Choice.DoesNotExist):
-        # Redisplay the question voting form.
-        return render(request, 'polls/detail.html', {
-            'question': p,
-            'error_message': "You didn't select a choice.",
-        })
-    else:
-        selected_choice.votes += 1
-        selected_choice.save()
-        return HttpResponseRedirect(reverse('results', args=(p.id,))) #ProfileDetail.get_object(self'''
+

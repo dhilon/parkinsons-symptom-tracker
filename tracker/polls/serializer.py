@@ -7,29 +7,19 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'is_staff']
+        fields = ['username', 'email', 'is_staff', 'password']
 
 
 class SurveySerializer(serializers.ModelSerializer):
-    questions = serializers.SerializerMethodField()
     
     class Meta:
         model = Survey
-        fields = ['name', 'questions']
-    
-    #def get_questions(self, obj):
-    #    questions = Question.objects.filter(survey = obj)
-    #    return Choice.objects.filter(question=questions)
-
-class ProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = '__all__'
-
+        fields = ['id', 'name', 'questions']
+        
 class ChoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Choice
-        fields = ['question', 'choice_text', 'voteCount']
+        fields = ['id', 'question', 'choice_text', 'other_text', 'date', 'voteCount']
 
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -37,6 +27,25 @@ class QuestionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class VoteSerializer(serializers.ModelSerializer):
+    
+    question = QuestionSerializer(read_only=True)
+    choice = ChoiceSerializer(read_only=True)
+    
     class Meta:
         model = Vote
-        fields = '__all__'
+        fields = ['id', 'question', 'survey', 'profile', 'choice', 'created_at']
+        
+    def to_internal_value(self, data):
+        return {'choice': data.get('choice')}
+    
+    def create(self, validated_data):
+        return Vote.objects.create(**validated_data)
+
+class ProfileSerializer(serializers.ModelSerializer):
+    votes = VoteSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Profile
+        fields = ['user', 'created', 'votes']
+
+

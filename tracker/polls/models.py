@@ -15,14 +15,33 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 
 class Survey(models.Model):
     name = models.CharField(max_length=200)
+    
+    def __str__(self):
+        return self.name
+    
+    def questionCount(self):
+        return Question.objects.filter(survey = self).count()
 
 
 class Question(models.Model):
     question_text = models.CharField(max_length=200)
     survey = models.ForeignKey(Survey, related_name='questions', on_delete=models.CASCADE)
     
-    def __str__(self):              # __unicode__ on Python 2
+    class QuestionType(models.TextChoices):
+        MC = "MC", ("Multiple Choice")
+        SINGLE_CHOICE = "SC", ("Single Choice")
+        SHORT_ANSWER = "SA", ("Short Answer")
+        DATE = "DT", ("Date")
+
+    q_type = models.CharField(
+        max_length=2,
+        choices=QuestionType,
+        default=QuestionType.MC,
+    )
+    
+    def __str__(self):
         return self.question_text
+    
     search_fields = ['question_text']
 
 class Profile(models.Model):
@@ -34,6 +53,8 @@ class Profile(models.Model):
 class Choice(models.Model):
     question = models.ForeignKey(Question, related_name='choices', on_delete=models.CASCADE)
     choice_text = models.CharField(max_length=200)
+    other_text = models.CharField(max_length=200, blank=True)
+    date = models.DateField(auto_now_add=True)
     #votes = models.IntegerField(default=0)
     def __str__(self):              # __unicode__ on Python 2
         return self.choice_text
@@ -42,6 +63,7 @@ class Choice(models.Model):
         return Vote.objects.filter(choice = self).count()
 
 class Vote(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
     question = models.ForeignKey(Question, related_name='votes', on_delete=models.CASCADE)
     survey = models.ForeignKey(Survey, related_name='votes', on_delete=models.CASCADE, default=None)
     profile = models.ForeignKey(Profile, related_name='votes', on_delete=models.CASCADE)
