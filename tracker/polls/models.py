@@ -9,9 +9,10 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
-def create_auth_token(sender, instance=None, created=False, **kwargs):
+def post_user_create(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
+        Profile.objects.create(user=instance)
 
 class Survey(models.Model):
     name = models.CharField(max_length=200)
@@ -32,6 +33,7 @@ class Question(models.Model):
         SINGLE_CHOICE = "SC", ("Single Choice")
         SHORT_ANSWER = "SA", ("Short Answer")
         DATE = "DT", ("Date")
+        TIME = "TM", ("Time")
 
     q_type = models.CharField(
         max_length=2,
@@ -55,6 +57,7 @@ class Choice(models.Model):
     choice_text = models.CharField(max_length=200)
     other_text = models.CharField(max_length=200, blank=True)
     date = models.DateField(auto_now_add=True)
+    time = models.TimeField(auto_now_add=True)
     #votes = models.IntegerField(default=0)
     def __str__(self):              # __unicode__ on Python 2
         return self.choice_text

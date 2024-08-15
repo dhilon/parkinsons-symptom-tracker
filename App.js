@@ -83,8 +83,6 @@ const ErrorScreen = ({navigation}) => {
 
 
 const WelcomeScreen = ({navigation}) => {
-  const [terms, setTerms] = useState(true);
-  const [text, setText] = useState('');
 
   const [token, setToken] = useState('')
 
@@ -104,20 +102,11 @@ const WelcomeScreen = ({navigation}) => {
     <Text style={styles.titleText}>
       Welcome to Symptom Tracker!
     </Text>
-    <Button onPress={() => {setTerms(false);}} disabled={!terms} buttonColor={'cornflowerblue'} textColor='azure'>Accept</Button>
-    <Button onPress={() =>navigation.navigate('Login')} disabled={terms || text!='balloon'} buttonColor={'cornflowerblue'} textColor='azure'>Continue</Button>
+    <Button onPress={() =>navigation.navigate('Login')} buttonColor={'cornflowerblue'} textColor='azure'>Continue</Button>
     <Text>We recommend you complete this profile with the help of a doctor, if possible.</Text>
-    <Text style={{padding: 10, fontSize: 42}}>{text}</Text>
     
-    <Image source={tulip} className="rctlogo" alt="recty" style={{width: 125, height: 220}}/>
+    <Image source={tulip} className="rctlogo" alt="recty" style={{width: 125, height: 220, margin: 25}}/>
       
-      <TextInput
-    style={styles.textInput}
-    placeholder="Enter the word balloon!"
-    onChangeText={newText => setText(newText)}
-    defaultValue={text}
-    autoCapitalize='none'
-    />
    </View>
   )   
 };
@@ -189,11 +178,6 @@ function Choice ({choice, onChange, q_type, checked}) {
   
 }
 
-
-function DateField({field, onChange}) {
-  
-}
-
 const ChoiceQuestion = ({navigation, route}) => {
 
   const [text, setText] = useState('');
@@ -230,8 +214,11 @@ const ChoiceQuestion = ({navigation, route}) => {
       if (quiz.q_type=='DT') {
         await axios.post(path+'/votes/', {date: date.toLocaleDateString('en-US'), type: "date"});
       }
+      if (quiz.q_type=='TM') {
+        await axios.post(path+'/votes/', {time: date.getHours()+":"+date.getMinutes(), type: "time"});
+      }
       for (choice in currentChoices) {
-        await axios.post(path+'/choices/'+currentChoices[choice].id+'/votes/');
+        const {data} = await axios.post(path+'/choices/'+currentChoices[choice].id+'/votes/');
       }
       setCurrentChoices([]);
       if (route.params.currentQ==route.params.totalQ) {
@@ -267,7 +254,7 @@ const ChoiceQuestion = ({navigation, route}) => {
   let otherChoice = <></>
 
   for (count in choices) {
-    if (choices[count].choice_text != "other" && choices[count].choice_text != "date") {
+    if (choices[count].choice_text != "other" && choices[count].choice_text != "date" && choices[count].choice_text != "time") {
       choice.push(<Choice choice={choices[count]} onChange={onSelect} key={""+choices[count].id} q_type={quiz.q_type} checked={checked}></Choice>);
     }
   }
@@ -278,7 +265,7 @@ const ChoiceQuestion = ({navigation, route}) => {
     isEmptyChoices = true;
   }
 
-  if (quiz.q_type=="MC" || (isEmptyChoices && quiz.q_type!='DT')) {
+  if (quiz.q_type=="MC" || (isEmptyChoices && quiz.q_type!='DT' && quiz.q_type!='TM')) {
     otherChoice = 
     <View style={styles.row}>
       <TextInput
@@ -297,6 +284,13 @@ const ChoiceQuestion = ({navigation, route}) => {
     dateComponent=
     <View style={styles.row}>
       <DatePicker date={date} onDateChange={setDate} mode='date'/>
+    </View>
+  }
+
+  if (quiz.q_type=="TM") {
+    dateComponent=
+    <View style={styles.row}>
+      <DatePicker date={date} onDateChange={setDate} mode='time'/>
     </View>
   }
 
@@ -319,7 +313,7 @@ const ChoiceQuestion = ({navigation, route}) => {
         <Button
           mode="contained-tonal"
           buttonColor='cornflowerblue' textColor='azure'
-          disabled={text=='' && currentChoices.length==0 && quiz.q_type!='DT'}
+          disabled={text=='' && currentChoices.length==0 && quiz.q_type!='DT' && quiz.q_type!='TM'}
           onPress={nextQuestion}
           style={styles.button}
         >
@@ -380,7 +374,7 @@ const LoginScreen = ({navigation, route}) => {
             style={styles.avatar}
             label="XD" size={80}
           />
-      <Text>Please log in, balloon lover.</Text>
+      <Text>Please log in.</Text>
       <TextInput style={styles.textInput}
               label="Enter Username Here"
               onChangeText={newText => setUsername(newText)}

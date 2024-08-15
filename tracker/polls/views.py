@@ -191,6 +191,8 @@ class QuestionVoteList(generics.ListCreateAPIView):
         t = self.request.data['type']
         if t == 'date':
             choice = Choice(date=datetime.strptime(self.request.data['date'], '%m/%d/%Y'), choice_text='date', question=question)
+        elif t == 'time':
+            choice = Choice(time=datetime.strptime(self.request.data['time'], '%H:%M'), choice_text='time', question=question)
         elif t == 'text':
             choice = Choice(other_text=self.request.data['other_text'], choice_text='other', question=question)
         choice.save()
