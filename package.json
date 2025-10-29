@@ -13,7 +13,7 @@
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/native-stack": "^6.9.26",
     "axios": "^1.7.2",
-    "expo": "~50.0.14",
+    "expo": "^54.0.21",
     "expo-status-bar": "~1.11.1",
     "madge": "^7.0.0",
     "node": "^22.2.0",
