@@ -38,4 +38,5 @@ yarn-error.*
 __pycache__
 db.sqlite3
 *.env
+*.venv311
 /env
