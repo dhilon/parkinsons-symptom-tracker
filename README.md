@@ -15,14 +15,14 @@ cd parkinsons-symptom-tracker
 ### Set up your Python environment
 ```bash
 Create and activate a virtual environment
-python3.11 -m venv .venv311
-source .venv311/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
 (Windows PowerShell)
 ```bash
-python -m venv .venv311
-.venv311\Scripts\activate
+python3 -m venv .venv
+.venv\Scripts\activate
 ```
 Upgrade pip and tools
 ```bash
@@ -42,11 +42,19 @@ pip install torch keras tensorflow
 
 Create a .env file in the project root (same level as manage.py):
 
+```
 DEBUG=True
 SECRET_KEY=devsecretkey
 ALLOWED_HOSTS=localhost,127.0.0.1
-DATABASE_URL=sqlite:///db.sqlite3
 
+DB_NAME=parkinsons_tracker_db
+DB_USER=dhilon
+DB_PASSWORD=password
+DB_HOST=127.0.0.1
+DB_PORT=5432
+
+DATABASE_URL=postgres://dhilon:password@127.0.0.1:5432/parkinsons_tracker_db
+```
 
 If using PostgreSQL, replace the last line with something like:
 
@@ -152,5 +160,6 @@ Launch the dev server (runserver or flask run)
 (Optional) Run frontend via npm run dev
 
 Visit http://localhost:8000 or http://localhost:5173
+
 
 
