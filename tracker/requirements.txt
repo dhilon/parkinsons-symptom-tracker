@@ -35,7 +35,7 @@ defusedxml==0.7.1
 distlib>=0.3.7,<1
 dj-database-url==1.2.0
 dj-rest-auth>=6.0.0
-Django==5.2.7
+Django==5.2.8
 django-allauth>=65.7.0,<66
 django-celery-results==2.5.1
 django-compat==1.0.15
